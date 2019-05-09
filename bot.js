@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const config = require("./auth.json");
+const config = require(".././auth.json");
 const request = require("request");
 const rp = require("request-promise");
 const client = new Discord.Client();
