@@ -141,15 +141,16 @@ client.on("message", async message => {
 	async function sendCardPrice(params) {
 		rp(params)
 			.then(async function (cd) {
-				if (cd.data[0].usd == undefined) {
+				ifexists(cd.data) ? cdset = cd.data[0] : cdset = cd
+				if (cdset.usd == undefined) {
 					await message.channel.send(sprintf("No USD price found for %s", [
-						cd.data[0].name
+						cdset.name
 					]));
 				} else {
 					await message.channel.send(
-						sprintf("%s (%s) ~ $%s", [cd.data[0].name,
-							cd.data[0].set.toUpperCase(),
-							cd.data[0].usd
+						sprintf("%s (%s) ~ $%s", [cdset.name,
+							cdset.set.toUpperCase(),
+							cdset.usd
 						])
 					);
 				}
@@ -173,8 +174,8 @@ client.on("message", async message => {
 		var searchSetCard = {
 			uri: "https://api.scryfall.com/cards/named",
 			qs: {
-				set: args.shift(),
-				fuzzy: args.join(" ")
+				set: args.[0],
+				fuzzy: args.slice(1).join(" ")
 			},
 			json: true
 		};
@@ -182,6 +183,7 @@ client.on("message", async message => {
 			uri: "https://api.scryfall.com/cards/search",
 			qs: {
 				order: "usd",
+				dir: "asc",
 				q: args.join(" ")
 			},
 			json: true
