@@ -142,7 +142,7 @@ client.on("message", async message => {
 		rp(params)
 			.then(async function (cd) {
 				ifexists(cd.data) ? cdset = cd.data[0] : cdset = cd
-				if (cdset.usd == undefined) {
+				if (cdset.prices.usd == undefined) {
 					await message.channel.send(sprintf("No USD price found for %s", [
 						cdset.name
 					]));
@@ -150,7 +150,7 @@ client.on("message", async message => {
 					await message.channel.send(
 						sprintf("%s (%s) ~ $%s", [cdset.name,
 							cdset.set.toUpperCase(),
-							cdset.usd
+							cdset.prices.usd
 						])
 					);
 				}
@@ -174,7 +174,7 @@ client.on("message", async message => {
 		var searchSetCard = {
 			uri: "https://api.scryfall.com/cards/named",
 			qs: {
-				set: args.[0],
+				set: args[0],
 				fuzzy: args.slice(1).join(" ")
 			},
 			json: true
