@@ -57,6 +57,7 @@ function searchExact(results, searched) {
 		if (results.data[i].name.toLowerCase() == searched) {
 			return results.data[i];
 		}
+	return results.data[0];
 	}
 }
 
