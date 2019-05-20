@@ -52,6 +52,14 @@ function emojify(cost, server) {
 	return emocost;
 }
 
+function searchExact(results, searched) {
+	for (i = 0; i < results.total_cards; i++) {
+		if (results.data[i].name.toLowerCase() == searched) {
+			return results.data[i];
+		}
+	}
+}
+
 client.on("message", async message => {
 	if (message.author.bot) return;
 	var msg = message.content.toLocaleLowerCase();
@@ -141,16 +149,21 @@ client.on("message", async message => {
 	async function sendCardPrice(params) {
 		rp(params)
 			.then(async function (cd) {
-				ifexists(cd.data) ? cdset = cd.data[0] : cdset = cd
-				if (cdset.prices.usd == undefined) {
+				ifexists(cd.data) ? cdset = searchExact(cd, args.join(" ")) : cdset = cd
+				if (cdset.prices.usd == undefined && cdset.prices.usd_foil == undefined) {
 					await message.channel.send(sprintf("No USD price found for %s", [
 						cdset.name
 					]));
 				} else {
+					if (cdset.prices.usd == undefined) {
+						price = cdset.prices.usd_foil + " (foil)";
+					} else {
+						price = Math.min(cdset.prices.usd, cdset.prices.usd_foil);
+					}
 					await message.channel.send(
 						sprintf("%s (%s) ~ $%s", [cdset.name,
 							cdset.set.toUpperCase(),
-							cdset.prices.usd
+							price
 						])
 					);
 				}
