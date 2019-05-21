@@ -46,19 +46,19 @@ function emojify(cost, server) {
 		.replace(/\}/g, " ")
 		.replace(/\//g, "")
 		.split(" ");
-	for (i = 0; i < cost.length - 1; i++) {
+	for (let i = 0; i < cost.length - 1; i++) {
 		emocost += server.emojis.find(x => x.name === cost[i]);
 	}
 	return emocost;
 }
 
 function searchExact(results, searched) {
-	for (i = 0; i < results.total_cards; i++) {
+	for (let i = 0; i < results.total_cards; i++) {
 		if (results.data[i].name.toLowerCase() == searched) {
 			return results.data[i];
 		}
-	return results.data[0];
 	}
+	return results.data[0];
 }
 
 client.on("message", async message => {
@@ -159,7 +159,7 @@ client.on("message", async message => {
 					if (cdset.prices.usd == undefined) {
 						price = cdset.prices.usd_foil + " (foil)";
 					} else {
-						price = Math.min(cdset.prices.usd, cdset.prices.usd_foil);
+						price = Math.min([cdset.prices.usd, cdset.prices.usd_foil].filter(pf => pf > 0));
 					}
 					await message.channel.send(
 						sprintf("%s (%s) ~ $%s", [cdset.name,
