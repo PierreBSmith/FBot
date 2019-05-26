@@ -94,7 +94,7 @@ client.on("message", async message => {
 	if (message.author.bot) return;
 	var msg = message.content.toLocaleLowerCase();
 	if (msg.includes("can i get an f in the chat")) {
-		message.channel.send("F");
+		message.channel.send("https://cdn.discordapp.com/attachments/155895007323095041/581393673200205835/rif-1558685448490.jpg");
 	}
 	if (msg.includes("oof")) {
 		message.channel.send("OOF");
