@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
-const config = require(".././auth.json");
+const auth = require("./auth.json");
+const config = require("./config.json")
 const request = require("request");
 const rp = require("request-promise");
 const client = new Discord.Client();
@@ -59,6 +60,34 @@ function searchExact(results, searched) {
 		}
 	}
 	return results.data[0];
+}
+
+function parseRulings(rulings) {
+	var arrayRulings = [];
+	rulings.filter(idx => idx.source !== "wotc");
+	for (let i = 0; i < rulings.length; i++) {
+		config.rulingsDate ? arrayRulings.push("```\n" + rulings[i].published_at + "\n" + rulings[i].comment + "```") : arrayRulings.push("```\n" + rulings[i].comment + "```")
+	}
+	if (arrayRulings.join("\n").length <= 2000) {
+		return arrayRulings.join("\n");
+	} else {
+		var rulingpart = "";
+		var arrayRulingsBig = [];
+		for (let i = 0; i < arrayRulings.length; i++) {
+			//+2 to account for linebreak
+			if (rulingpart.length + arrayRulings[i].length + 2 <= 2000) {
+				rulingpart += arrayRulings[i] + "\n";
+			} else {
+				arrayRulingsBig.push(rulingpart.trim());
+				rulingpart = "";
+				i--;
+			}
+		}
+		if (rulingpart !== "") {
+			arrayRulingsBig.push(rulingpart.trim());
+		}
+		return arrayRulingsBig;
+	}
 }
 
 client.on("message", async message => {
@@ -174,6 +203,33 @@ client.on("message", async message => {
 			});
 	}
 
+	async function sendRulings(params) {
+		rp(params)
+			.then(async function (cd) {
+				var uriRulings = {
+					uri: cd.rulings_uri,
+					json: true
+				}
+				rp(uriRulings)
+					.then(async function (cr) {
+						if (cr.data === undefined || cr.data.length == 0) {
+							await message.channel.send("No rulings found for " & cd.name)
+						} else {
+							var readyRulings = parseRulings(cr.data);
+							if (typeof readyRulings === "string") {
+								await message.channel.send(readyRulings);
+							} else {
+								for (let i = 0; i < readyRulings.length; i++) {
+									await message.channel.send(readyRulings[i]);
+									await sleep(1000);
+								}
+							}
+						}
+					})
+
+			})
+	}
+
 	const args = message.content.substring(1).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 	//hey future me, if you ever want to add more command your gonna have to change this shit you dumb shit
@@ -229,8 +285,11 @@ client.on("message", async message => {
 		case "ps":
 			sendCardPrice(searchSetCard);
 			break;
+		case "r":
+			sendRulings(searchCard);
+			break;
 	}
 });
 
 
-client.login(config.token);
+client.login(auth.token);
