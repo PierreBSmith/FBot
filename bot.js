@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const auth = require("./auth.json");
-const config = require("./config.json")
+const config = require("./config.json");
+const fs = require("fs");
 const request = require("request");
 const rp = require("request-promise");
 const client = new Discord.Client();
@@ -286,7 +287,22 @@ client.on("message", async message => {
 			sendCardPrice(searchSetCard);
 			break;
 		case "r":
+			if (auth.channelwl.includes(message.channel.id)) {
 			sendRulings(searchCard);
+			}
+			break;
+		case "whitelist":
+			//add "owners" to your auth.json as an array with Discord IDs of users who should have access to this command
+			//add "channelwl" to your auth.json as an empty array
+			if (auth.owners.includes(message.author.id) && !auth.channelwl.includes(message.channel.id)) {
+				auth.channelwl.push(message.channel.id);
+				fs.writeFile("./auth.json", JSON.stringify(auth,0,4), (err) => {console.log(err)});
+				message.channel.send(message.channel.name + " has been whitelisted for commands that require whitelisting.")
+			} else {
+				auth.channelwl = auth.channelwl.filter(chan => chan !== message.channel.id);
+				fs.writeFile("./auth.json", JSON.stringify(auth,0,4), (err) => {console.log(err)});
+				message.channel.send(message.channel.name + " has been removed from the whitelist.");
+			}
 			break;
 	}
 });
