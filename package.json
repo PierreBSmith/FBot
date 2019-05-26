@@ -1,0 +1,14 @@
+{
+  "name": "F-Bot",
+  "version": "1.0.0",
+  "description": "Says F whenever someone asks for an F in the chat",
+  "main": "bot.js",
+  "author": "Pierre Smith",
+  "dependencies": {
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "discord.js": "^11.4.2",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "winston": "^3.2.1"
+  }
+}
