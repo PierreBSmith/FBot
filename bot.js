@@ -195,7 +195,7 @@ client.on("message", async message => {
 					if (cdset.prices.usd == undefined) {
 						price = cdset.prices.usd_foil + " (foil)";
 					} else {
-						price = Math.min([cdset.prices.usd, cdset.prices.usd_foil].filter(pf => pf > 0));
+						price = Math.min(...[cdset.prices.usd, cdset.prices.usd_foil].filter(Boolean));
 					}
 					await message.channel.send(
 						sprintf("%s (%s) ~ $%s", [cdset.name,
