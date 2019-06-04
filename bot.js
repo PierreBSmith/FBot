@@ -48,6 +48,12 @@ function emojify(cost, server) {
 		.replace(/\}/g, " ")
 		.replace(/\//g, "")
 		.split(" ");
+	if (cost[0] == "mana1000000") {
+		for (i = 0; i < 4; i += 1) {
+			emocost += server.emojis.find(x => x.name === "mana1000000" + (i + 1).toString())
+		}
+		return emocost;
+	}
 	for (let i = 0; i < cost.length - 1; i++) {
 		emocost += server.emojis.find(x => x.name === cost[i]);
 	}
