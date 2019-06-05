@@ -268,20 +268,31 @@ client.on("message", async message => {
 	}
 	switch (command) {
 		case "f":
-			for (var i = 0; i < parseInt(args[0]); i++) {
-				var msg2 = "F ";
-				msg2 = msg2.concat(i);
-				message.channel.send(msg2);
-				await sleep(1000);
+			if (auth.channelwl.includes(message.channel.id)) {
+				for (var i = 0; i < parseInt(args[0]); i++) {
+					var msg2 = "F ";
+					msg2 = msg2.concat(i);
+					message.channel.send(msg2);
+					await sleep(1000);
+				}
 			}
 			break;
 		case"quality":
 		message.channel.send(
 				"MTGO is a quality program"
 			);
+		break;
+		case"hotel":
+		message.channel.send(
+				"trivago"
+			);
+		break;
 		case "help":
 			message.channel.send(
-				"says F whenever an F is asked for \n says OOF whenever OOF \n !f [num] types that many F's \n !help for help"
+				"says F whenever an F is asked for \nsays OOF whenever OOF \n!f [num] types that many F's"
+				+ "\n!hotel for trivago \n!quality describes MTGO \n!c [cardName] pulls up the oracle text of a MTG card \n!cs [setAbbrevation] [cardName] pulls up the oracle text of the card in that set"
+				+ "\n!p [cardName] for the price of a card \n!cs [setAbbrevation] [cardName] for the price of the card from that set \n!r [cardName] for rulings associated with that card in whitelisted channels"
+				+ "\n!help for help"
 			);
 			break;
 		case "c":
