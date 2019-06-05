@@ -275,6 +275,10 @@ client.on("message", async message => {
 				await sleep(1000);
 			}
 			break;
+		case"quality":
+		message.channel.send(
+				"MTGO is a quality program"
+			);
 		case "help":
 			message.channel.send(
 				"says F whenever an F is asked for \n says OOF whenever OOF \n !f [num] types that many F's \n !help for help"
