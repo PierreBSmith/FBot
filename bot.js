@@ -1,6 +1,5 @@
 const Discord = require("discord.js");
 const auth = require("./auth.json");
-const customcommands = require ("./customcommands.json")
 const config = require("./config.json");
 const fs = require("fs");
 const request = require("request");
@@ -188,28 +187,31 @@ client.on("message", async message => {
 
 	async function readCommand(command)
 	{
-		for (let i = 0; i < customcommands.length; i++) {
-			if (customcommands[i].name == command) {
-				message.channel.send(customcommands[i].comm);
-				return;
+		fs.readFile("./customcommands.json", "utf8", function (err, data) {
+			let ccjson = JSON.parse(data)
+			for (let i = 0; i < ccjson.length; i++) {
+				if (ccjson[i].name == command) {
+					message.channel.send(ccjson[i].comm);
+					return;
+				}
 			}
-		}
 		message.channel.send("command does not exist");
+		})
 	}
 
 	async function addCommand(command)
 	{	
-		for (let i = 0; i < customcommands.length; i++) {
-			if (customcommands[i].name == command) {
-				message.channel.send("command already exists");
-				return;
-			}
-		}
 		fs.readFile("./customcommands.json", "utf8", function (err, data) {
 			let ccjson = JSON.parse(data)
 			if (ccjson === undefined || ccjson.length == 0 || ccjson.length == undefined) {
 				ccjson = [{"name": command.name,"comm": command.comm}]
 			} else {
+				for (let i = 0; i < ccjson.length; i++) {
+					if (ccjson[i].name == command) {
+						message.channel.send("command already exists");
+						return;
+					}
+				}
 				ccjson.push(command)
 			};
 			fs.writeFile("./customcommands.json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
