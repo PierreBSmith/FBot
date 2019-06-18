@@ -1,12 +1,13 @@
 const Discord = require("discord.js");
 const auth = require("./auth.json");
+const customcommands = require ("./customcommands.json")
 const config = require("./config.json");
 const fs = require("fs");
 const request = require("request");
 const rp = require("request-promise");
 const client = new Discord.Client();
 var logger = require("winston");
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console(), {
 	colorize: true
@@ -185,38 +186,34 @@ client.on("message", async message => {
 			});
 	}
 
-	async function readTextFile(command)
+	async function readCommand(command)
 	{
-		if(auth.commands.includes(command)){
-			fs.readFile("/Users/kvashay/Desktop/DiscordBots/FBot/" + command + ".txt", 'utf8', (err, data) => {
-	  			if (err) throw err;
-	  			message.channel.send(data);
-			});
+		for (let i = 0; i < customcommands.length; i++) {
+			if (customcommands[i].name == command) {
+				message.channel.send(customcommands[i].comm);
+				return;
+			}
 		}
-		else{
-			message.channel.send("command does not exist");
-		}
-  			
+		message.channel.send("command does not exist");
 	}
 
 	async function addCommand(command)
 	{	
-		fs.open("/Users/kvashay/Desktop/DiscordBots/FBot/" + command.name + ".txt", 'wx', (err, fd) => {
-			console.log(command.name);
-	  		if (err) {
-	    		if (err.code === 'EEXIST') {
-	     	 		message.channel.send("command already exists");
-	      			return;
-	    		}
-
-	    		throw err;
-	  		}
-
-	  		fs.write(fd, command.comm, async function(err, written, string){
-
-	  		});
-	  		auth.commands.push(command.name);
-		});
+		for (let i = 0; i < customcommands.length; i++) {
+			if (customcommands[i].name == command) {
+				message.channel.send("command already exists");
+				return;
+			}
+		}
+		fs.readFile("./customcommands.json", "utf8", function (err, data) {
+			let ccjson = JSON.parse(data)
+			if (ccjson === undefined || ccjson.length == 0 || ccjson.length == undefined) {
+				ccjson = [{"name": command.name,"comm": command.comm}]
+			} else {
+				ccjson.push(command)
+			};
+			fs.writeFile("./customcommands.json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
+		})
 	}
 
 	async function sendCardPrice(params) {
@@ -376,7 +373,7 @@ client.on("message", async message => {
 			break;
 		default:
 			try{
-				readTextFile(command);
+				readCommand(command);
 			} catch(err){
 				console.log(err);
 			}		
