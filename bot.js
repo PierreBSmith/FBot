@@ -187,14 +187,14 @@ client.on("message", async message => {
 
 	async function readTextFile(command)
 	{
-		try{
+		if(auth.commands.includes(command)){
 			fs.readFile("/Users/kvashay/Desktop/DiscordBots/FBot/" + command + ".txt", 'utf8', (err, data) => {
 	  			if (err) throw err;
-	  			console.log(data);
 	  			message.channel.send(data);
 			});
-		} catch(err){
-			console.log(err);
+		}
+		else{
+			message.channel.send("command does not exist");
 		}
   			
 	}
@@ -215,6 +215,7 @@ client.on("message", async message => {
 	  		fs.write(fd, command.comm, async function(err, written, string){
 
 	  		});
+	  		auth.commands.push(command.name);
 		});
 	}
 
@@ -300,7 +301,6 @@ client.on("message", async message => {
 			},
 			json: true
 		};
-		console.log(command);
 		var addedCommand = {
 			
 			name: args.shift(),
@@ -308,26 +308,6 @@ client.on("message", async message => {
 		};
 	}
 	switch (command) {
-		case "naegate":
-		message.channel.send("Before this gets deleted by reddit admins, this asshole took it completely out of context. First "
-			+ "\nof all, the idiot thinks it was a marionette deck. It wasn't. That card's not even in the deck. He was "
-			+ "\nrunning counterspell draw, this was approximately turn 25, every single creature and spell I cast was "
-			+ "\ncountered or removed up until that point and this dumbass who copied his deck from MTG Salvation "
-			+ "\nor Goldfish used one of his last copies of negate to counter a Revel in Riches when he had 0 "
-			+"\ncreatures on the field and I had 0 treasures in play, thus the \"this spell does literally nothing\" and he "
-			+"\n should have let it resolve. I love it when people copy a deck and have no idea how to run it or play "
-			+"\nMTG. I was just throwing it out because I had 5 mana and it was the only card left in my hand and "
-			+ "\nthe game was already over anyway. So on the way out I let him know what an idiot he was for "
-			+ "\ncountering a spell that does nothing in the current board state."
-			+"\n\n\nNOBODY wants to watch a recording of a game where I cast something and he counters it or "
-			+ "\nremoves it x30 turns. That's idiotic. I should have left the game the second I saw what he was"
-			+"\nrunning. This was the 5th attempt at getting a recording of something resembling watchable MTG "
-			+"\ngameplay and 5 people in a row were playing Karn draw control loop or free cast torrential "
-			+"\ngraveyard resurrection control or approach control loop. So yeah, I was pissed and he was an "
-			+"\nasshole for playing this. He's one of those idiots who doesn't care about the other players one bit, it's "
-			+"\nall about winning. So running 35 control spells seems reasonable because NOTHING matters but "
-			+"\nwinning. Thanks for not showing the board state with library counts or the full log, asshole. Enjoy "
-			+"\nyour temporary ban from reddit.");
 		case "f":
 			if (auth.channelwl.includes(message.channel.id)) {
 				for (var i = 0; i < parseInt(args[0]); i++) {
