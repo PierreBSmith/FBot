@@ -1,6 +1,9 @@
 # Config file
 auth.json
 
+#Custom commands file
+customcommands.json
+
 # Logs
 logs
 *.log
