@@ -188,13 +188,16 @@ client.on("message", async message => {
 
 	async function readCommand(command)
 	{
-		for (let i = 0; i < customcommands.length; i++) {
-			if (customcommands[i].name == command) {
-				message.channel.send(customcommands[i].comm);
-				return;
+		fs.readFile("./customcommands.json", "utf8", function (err, data) {
+			let ccjson = JSON.parse(data)
+			for (let i = 0; i < ccjson.length; i++){
+				if (ccjson[i].name == command) {
+					message.channel.send(ccjson[i].comm);
+					return;
+				}
 			}
-		}
-		message.channel.send("command does not exist");
+			message.channel.send("command does not exist");
+		});
 	}
 
 	async function addCommand(command)
@@ -372,11 +375,7 @@ client.on("message", async message => {
 			}
 			break;
 		default:
-			try{
-				readCommand(command);
-			} catch(err){
-				console.log(err);
-			}		
+			readCommand(command);
 			break;
 				
 	}
