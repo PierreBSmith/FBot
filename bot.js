@@ -102,9 +102,27 @@ client.on("message", async message => {
 	if (message.author.bot) return;
 	var msg = message.content.toLocaleLowerCase();
 	if (msg.includes("can i get an f in the chat")) {
-		message.channel.send(new Discord.Attachment('./gideonF.png')).catch(console.error);
+		var rand = Math.floor(Math.random()*5);
+		switch(rand){
+			case(0):
+				message.channel.send(new Discord.Attachment('./gideonF.png')).catch(console.error);
+			break;
+			case(1):
+				message.channel.send(new Discord.Attachment('./graveStoneF.png')).catch(console.error);
+			break;
+			case(2):
+				message.channel.send(new Discord.Attachment('./facebookF.png')).catch(console.error);
+			break;
+			case(3):
+				message.channel.send(new Discord.Attachment('./f-grade.png')).catch(console.error);
+			break;
+			case(4):
+				message.channel.send(new Discord.Attachment('./fireF.jpg')).catch(console.error);
+			break;
+		}
+		
 	}
-	if (msg.includes("oof")) {
+	if (msg.includes("oof") || msg.includes("kasen")) {
 		message.channel.send("OOF");
 	}
 
@@ -185,9 +203,9 @@ client.on("message", async message => {
 			});
 	}
 
-	async function readCommand(command)
+	async function readCommand(command, folder)
 	{
-		fs.readFile("./customcommands.json", "utf8", function (err, data) {
+		fs.readFile("./" + folder + ".json", "utf8", function (err, data) {
 			let ccjson = JSON.parse(data)
 			for (let i = 0; i < ccjson.length; i++) {
 				if (ccjson[i].name == command) {
@@ -199,25 +217,24 @@ client.on("message", async message => {
 		})
 	}
 
-	async function addCommand(command)
+	async function addCommand(command, folder)
 	{	
-		fs.readFile("./customcommands.json", "utf8", function (err, data) {
+		fs.readFile("./" + folder + ".json", "utf8", function (err, data) {
 			let ccjson = JSON.parse(data)
 			if (ccjson === undefined || ccjson.length == 0 || ccjson.length == undefined) {
 				ccjson = [{"name": command.name,"comm": command.comm}]
 			} else {
 				for (let i = 0; i < ccjson.length; i++) {
-					if (ccjson[i].name == command) {
+					if (ccjson[i].name == command.name) {
 						message.channel.send("command already exists");
 						return;
 					}
 				}
 				ccjson.push(command)
 			};
-			fs.writeFile("./customcommands.json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
+			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
 	}
-
 	async function sendCardPrice(params) {
 		rp(params)
 			.then(async function (cd) {
@@ -301,15 +318,15 @@ client.on("message", async message => {
 			json: true
 		};
 		var addedCommand = {
-			
-			name: args.shift(),
-			comm: args.join(" ")
-		};
+			name: args[0],
+			comm: args.slice(1).join(" ")
+		}; 
 	}
+	
 	switch (command) {
 		case "f":
 			if (auth.channelwl.includes(message.channel.id)) {
-				for (var i = 0; i < parseInt(args[0]); i++) {
+				for (let i = 0; i < parseInt(args[0]); i++) {
 					var msg2 = "F ";
 					msg2 = msg2.concat(i);
 					message.channel.send(msg2);
@@ -357,8 +374,14 @@ client.on("message", async message => {
 			sendRulings(searchCard);
 			}
 			break;
+		case "adddeck":
+			addCommand(addedCommand, "decklists");
+			break;
 		case "addcom":
-			addCommand(addedCommand);
+			addCommand(addedCommand, "customcommands");
+			break;
+		case "deck":
+			readCommand(args[0], "decklists");
 			break;
 		case "whitelist":
 			//add "owners" to your auth.json as an array with Discord IDs of users who should have access to this command
@@ -375,12 +398,11 @@ client.on("message", async message => {
 			break;
 		default:
 			try{
-				readCommand(command);
+				readCommand(command, "customcommands");
 			} catch(err){
 				console.log(err);
 			}		
-			break;
-				
+			break;				
 	}
 });
 
