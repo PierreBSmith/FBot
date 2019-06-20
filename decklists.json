@@ -1,5 +1,9 @@
 [
     [],
     [],
-    []
+    [],
+    {
+        "name": "burn",
+        "comm": "1 test\n2 tester\n3 thisshouldntwork"
+    }
 ]
