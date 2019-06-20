@@ -349,7 +349,7 @@ client.on("message", async message => {
 				"says F whenever an F is asked for \nsays OOF whenever OOF \n!f [num] types that many F's"
 				+ "\n!hotel for trivago \n!quality describes MTGO \n!c [cardName] pulls up the oracle text of a MTG card \n!cs [setAbbrevation] [cardName] pulls up the oracle text of the card in that set"
 				+ "\n!p [cardName] for the price of a card \n!ps [setAbbrevation] [cardName] for the price of the card from that set \n!r [cardName] for rulings associated with that card in whitelisted channels"
-				+ "\n!help for help \n HELP IS OUT OF DATE REEEEEEEEEEEEEEEEEE"
+				+ "\n!help for help \n HELP IS OUT OF DATE REEEEEEEEEEEEEEEEEE test test"
 			);
 			break;
 		case "ownerhelp":
