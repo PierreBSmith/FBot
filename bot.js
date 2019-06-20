@@ -341,7 +341,7 @@ client.on("message", async message => {
 		break;
 		case"hotel":
 		message.channel.send(
-				"trivago test"
+				"trivago"
 			);
 		break;
 		case "help":
