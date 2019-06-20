@@ -235,6 +235,16 @@ client.on("message", async message => {
 			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
 	}
+	async function removeCommand(command, folder)
+	{
+		fs.readFile("./" + folder + ".json", "utf8", function (err, data) {
+			let ccjson = JSON.parse(data)
+			for (let i = 0; i < ccjson.length; i++) {
+					ccjson[i] = ccjson.filter(name => command !== ccjson[i].name);
+			};
+			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
+		})
+	}
 	async function sendCardPrice(params) {
 		rp(params)
 			.then(async function (cd) {
@@ -382,6 +392,11 @@ client.on("message", async message => {
 			break;
 		case "deck":
 			readCommand(args[0], "decklists");
+			break;
+		case "removedeck":
+			removeCommand(args[0], "decklists");
+		case "removecom":
+			removeCommand(args[0], "customcommands");
 			break;
 		case "whitelist":
 			//add "owners" to your auth.json as an array with Discord IDs of users who should have access to this command
