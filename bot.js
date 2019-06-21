@@ -239,9 +239,17 @@ client.on("message", async message => {
 	{
 		fs.readFile("./" + folder + ".json", "utf8", function (err, data) {
 			let ccjson = JSON.parse(data)
-			for (let i = 0; i < ccjson.length; i++) {
-					ccjson[i] = ccjson.filter(name => command !== ccjson[i].name);
-			};
+			//delete ccjson.command
+			let i = 0;
+			for(; i < ccjson.length; i++){
+				if(ccjson[i].name == command){
+					break;
+				}
+			}
+			ccjson.splice(i, 1);
+			//ccjson = ccjson.filter(name => name !== command);
+			console.log(command);
+			console.log(ccjson);
 			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
 	}
