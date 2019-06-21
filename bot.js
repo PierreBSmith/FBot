@@ -270,7 +270,7 @@ client.on("message", async message => {
 					await message.channel.send(
 						sprintf("%s (%s) ~ $%s", [cdset.name,
 							cdset.set.toUpperCase(),
-							price
+							price.toFixed(2)
 						])
 					);
 				}
