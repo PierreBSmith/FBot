@@ -247,9 +247,6 @@ client.on("message", async message => {
 				}
 			}
 			ccjson.splice(i, 1);
-			//ccjson = ccjson.filter(name => name !== command);
-			console.log(command);
-			console.log(ccjson);
 			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
 	}
