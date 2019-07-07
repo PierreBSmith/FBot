@@ -99,7 +99,7 @@ function parseRulings(rulings) {
 }
 
 client.on("message", async message => {
-	if(message.channel.id === "597186542380777497") return;
+	if (auth.channelbl.includes(message.channel.id)) return;
 	if (message.author.bot) return;
 	var msg = message.content.toLocaleLowerCase();
 	if (msg.includes("can i get an f in the chat")) {
