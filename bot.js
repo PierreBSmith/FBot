@@ -99,6 +99,7 @@ function parseRulings(rulings) {
 }
 
 client.on("message", async message => {
+	if(message.channel.id === "597186542380777497") return;
 	if (message.author.bot) return;
 	var msg = message.content.toLocaleLowerCase();
 	if (msg.includes("can i get an f in the chat")) {
@@ -231,6 +232,7 @@ client.on("message", async message => {
 					}
 				}
 				ccjson.push(command)
+				message.channel.send(command.name + " added");
 			};
 			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
@@ -243,10 +245,12 @@ client.on("message", async message => {
 			let i = 0;
 			for(; i < ccjson.length; i++){
 				if(ccjson[i].name == command){
+					ccjson.splice(i, 1);
+					message.channel.send(command + " removed");
 					break;
 				}
 			}
-			ccjson.splice(i, 1);
+			
 			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
 	}

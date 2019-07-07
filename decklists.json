@@ -5,5 +5,25 @@
     {
         "name": "burn",
         "comm": "1 test\n2 tester\n3 thisshouldntwork"
+    },
+    {
+        "name": "humans",
+        "comm": "https://www.mtgtop8.com/event?e=22261&d=350816&f=MO"
+    },
+    {
+        "name": "monoredPhoenix",
+        "comm": "https://www.mtgtop8.com/event?e=22306&d=351263&f=MO"
+    },
+    {
+        "name": "Tron",
+        "comm": "https://www.mtgtop8.com/event?e=22306&d=351260&f=MO"
+    },
+    {
+        "name": "UWControl",
+        "comm": "https://www.mtgtop8.com/event?e=22311&d=351299&f=MO"
+    },
+    {
+        "name": "Hogaak",
+        "comm": "https://www.mtgtop8.com/event?e=22311&d=351306&f=MO"
     }
 ]
