@@ -129,6 +129,24 @@ client.on("message", async message => {
 
 
 	if (message.content.charAt(0) !== "!") return;
+	async function sendCardImage(params) {
+		rp(params)
+			.then(async function (cd) {
+				//console.log(cd);
+				if(ifexists(cd.card_faces) != "") {
+					var halves = "";
+					var cardhalf;
+					var halfname;
+					await message.channel.send("currently not implemented for double faced cards");
+				} else {
+						await message.channel.send(cd.image_uris.png).catch(console.error);
+				}
+				
+			})
+			.catch(async function (err) {
+				console.log(err);
+			});
+	}
 	async function sendCardText(params) {
 		rp(params)
 			.then(async function (cd) {
@@ -319,6 +337,21 @@ client.on("message", async message => {
 			},
 			json: true
 		};
+		var searchImageCard = {
+			uri: "https://api.scryfall.com/cards/named",
+			qs: {
+				fuzzy: args.join(" ")
+			},
+			json: true
+		}
+		var searchImageSet = {
+			uri: "https://api.scryfall.com/cards/named",
+			qs: {
+				set: args[0],
+				fuzzy: args.slice(1).join(" ")
+			},
+			json: true
+		}
 		var searchSetCard = {
 			uri: "https://api.scryfall.com/cards/named",
 			qs: {
@@ -390,8 +423,14 @@ client.on("message", async message => {
 			break;
 		case "r":
 			if (auth.channelwl.includes(message.channel.id)) {
-			sendRulings(searchCard);
+				sendRulings(searchCard);
 			}
+			break;
+		case "im":
+			sendCardImage(searchImageCard);
+			break;
+		case "ims":
+			sendCardImage(searchImageSet);
 			break;
 		case "adddeck":
 			addCommand(addedCommand, "decklists");
@@ -404,6 +443,7 @@ client.on("message", async message => {
 			break;
 		case "removedeck":
 			removeCommand(args[0], "decklists");
+			break;
 		case "removecom":
 			removeCommand(args[0], "customcommands");
 			break;
