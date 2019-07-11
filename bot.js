@@ -52,14 +52,17 @@ function emojify(cost, server) {
 	if (cost[0] == "mana1000000") {
 		for (let i = 0; i < 4; i += 1) {
 			emocost += server.emojis.find(x => x.name === "mana1000000" + (i + 1).toString())
+			if (emocost == "null") {
+				return origcost;
+			}
 		}
 		return emocost;
 	}
 	for (let i = 0; i < cost.length - 1; i++) {
 		emocost += server.emojis.find(x => x.name === cost[i]);
-	}
-	if (emocost == null) {
-		return origcost;
+		if (emocost == "null") {
+			return origcost;
+		}
 	}
 	return emocost;
 }
