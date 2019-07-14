@@ -109,26 +109,11 @@ client.on("message", async message => {
 	if (message.author.bot) return;
 	var msg = message.content.toLocaleLowerCase();
 	if (msg.includes("can i get an f in the chat")) {
-		var rand = Math.floor(Math.random()*5);
-		switch(rand){
-			case(0):
-				message.channel.send(new Discord.Attachment('./gideonF.png')).catch(console.error);
-			break;
-			case(1):
-				message.channel.send(new Discord.Attachment('./graveStoneF.png')).catch(console.error);
-			break;
-			case(2):
-				message.channel.send(new Discord.Attachment('./facebookF.png')).catch(console.error);
-			break;
-			case(3):
-				message.channel.send(new Discord.Attachment('./f-grade.png')).catch(console.error);
-			break;
-			case(4):
-				message.channel.send(new Discord.Attachment('./fireF.jpg')).catch(console.error);
-			break;
-		}
-		
-	}
+		fs.readdir("./assets/FPics", function (err, files) {
+			let rand = Math.floor(Math.random()*(files.length));
+			message.channel.send(new Discord.Attachment('./assets/FPics/' + files[rand])).catch(console.error);
+		});
+	};
 	if (msg.includes("oof") || msg.includes("kasen")) {
 		message.channel.send("OOF");
 	}
@@ -228,9 +213,9 @@ client.on("message", async message => {
 			});
 	}
 
-	async function readCommand(command, folder)
+	async function readCommand(command, filename)
 	{
-		fs.readFile("./" + folder + ".json", "utf8", function (err, data) {
+		fs.readFile("./" + filename + ".json", "utf8", function (err, data) {
 			let ccjson = JSON.parse(data)
 			for (let i = 0; i < ccjson.length; i++) {
 				if (ccjson[i].name == command) {
@@ -242,9 +227,9 @@ client.on("message", async message => {
 		})
 	}
 
-	async function addCommand(command, folder)
+	async function addCommand(command, filename)
 	{	
-		fs.readFile("./" + folder + ".json", "utf8", function (err, data) {
+		fs.readFile("./" + filename + ".json", "utf8", function (err, data) {
 			let ccjson = JSON.parse(data)
 			if (ccjson === undefined || ccjson.length == 0 || ccjson.length == undefined) {
 				ccjson = [{"name": command.name,"comm": command.comm}]
@@ -258,12 +243,12 @@ client.on("message", async message => {
 				ccjson.push(command)
 				message.channel.send(command.name + " added");
 			};
-			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
+			fs.writeFile("./" + filename + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
 	}
-	async function removeCommand(command, folder)
+	async function removeCommand(command, filename)
 	{
-		fs.readFile("./" + folder + ".json", "utf8", function (err, data) {
+		fs.readFile("./" + filename + ".json", "utf8", function (err, data) {
 			let ccjson = JSON.parse(data)
 			//delete ccjson.command
 			let i = 0;
@@ -275,7 +260,7 @@ client.on("message", async message => {
 				}
 			}
 			
-			fs.writeFile("./" + folder + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
+			fs.writeFile("./" + filename + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
 		})
 	}
 	async function sendCardPrice(params) {
