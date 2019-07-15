@@ -18,6 +18,22 @@ client.on("ready", function (evt) {
 	logger.info(client.username + " - (" + client.id + ")");
 });
 
+function createJSON(filename) {
+	switch (filename) {
+		case 'decklists':
+		case 'customcommands':
+			fs.writeFile('./assets/' + filename + ".json", "[]", 'utf8', (err) => {
+				if (err) throw err;
+				console.log("Created file: " + filename + ".json");
+			});
+			break;
+		default:
+			message.channel.send("Something went wrong!");
+			console.log("Unexpectedly ended up in the default case of function createJSON.")
+			break;
+	}
+}
+
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -213,9 +229,13 @@ client.on("message", async message => {
 			});
 	}
 
-	async function readCommand(command, filename)
-	{
-		fs.readFile("./" + filename + ".json", "utf8", function (err, data) {
+	async function readCommand(command, filename) {
+		fs.readFile("./assets/" + filename + ".json", "utf8", function (err, data) {
+			if (err && err.code === 'ENOENT') {
+				createJSON(filename);
+				message.channel.send("command does not exist");
+				return;
+			}
 			let ccjson = JSON.parse(data)
 			for (let i = 0; i < ccjson.length; i++) {
 				if (ccjson[i].name == command) {
@@ -227,9 +247,14 @@ client.on("message", async message => {
 		})
 	}
 
-	async function addCommand(command, filename)
-	{	
-		fs.readFile("./" + filename + ".json", "utf8", function (err, data) {
+	async function addCommand(command, filename) {	
+		fs.readFile("./assets/" + filename + ".json", "utf8", function (err, data) {
+			if (err && err.code === 'ENOENT') {
+				createJSON(filename);
+				//for now, just assume the file created by createJSON contains this string
+				//TODO: actually read the contents of the file created by createJSON here
+				data = "[]"
+			}
 			let ccjson = JSON.parse(data)
 			if (ccjson === undefined || ccjson.length == 0 || ccjson.length == undefined) {
 				ccjson = [{"name": command.name,"comm": command.comm}]
@@ -243,12 +268,17 @@ client.on("message", async message => {
 				ccjson.push(command)
 				message.channel.send(command.name + " added");
 			};
-			fs.writeFile("./" + filename + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
+			fs.writeFile("./assets/" + filename + ".json", JSON.stringify(ccjson,0,4), (err) => {if(err) console.log(err)});
 		})
 	}
-	async function removeCommand(command, filename)
-	{
-		fs.readFile("./" + filename + ".json", "utf8", function (err, data) {
+
+	async function removeCommand(command, filename) {
+		fs.readFile("./assets/" + filename + ".json", "utf8", function (err, data) {
+			if (err && err.code === 'ENOENT') {
+				createJSON(filename);
+				message.channel.send(command + " does not exist.");
+				return;
+			}
 			let ccjson = JSON.parse(data)
 			//delete ccjson.command
 			let i = 0;
@@ -260,9 +290,10 @@ client.on("message", async message => {
 				}
 			}
 			
-			fs.writeFile("./" + filename + ".json", JSON.stringify(ccjson,0,4), (err) => {console.log(err)});
+			fs.writeFile("./assets/" + filename + ".json", JSON.stringify(ccjson,0,4), (err) => {if(err) console.log(err)});
 		})
 	}
+
 	async function sendCardPrice(params) {
 		rp(params)
 			.then(async function (cd) {
