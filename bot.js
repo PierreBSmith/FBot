@@ -469,6 +469,28 @@ client.on("message", async message => {
 		case "removecom":
 			removeCommand(args[0], "customcommands");
 			break;
+		case "decks":
+			var decknames = "Decks: "
+			fs.readFile("./assets/decklists.json", "utf8", function (err, data) {
+				if (err && err.code === 'ENOENT') {
+					message.channel.send("No decks found.");
+					return;
+				}
+				let ccjson = JSON.parse(data)
+				if (ccjson.length !== 0) {
+					for (let i = 0; i < ccjson.length; i++) {
+						decknames += ccjson[i].name;
+						if (i === ccjson.length - 1) break;
+						decknames += ", ";
+					}
+				}
+				if (decknames !== "Decks: ") {
+					message.channel.send(decknames);
+				} else {
+					message.channel.send("No decks found.");
+				}
+			})
+			break;
 		case "whitelist":
 			//add "owners" to your auth.json as an array with Discord IDs of users who should have access to this command
 			//add "channelwl" to your auth.json as an empty array
