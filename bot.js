@@ -359,21 +359,13 @@ client.on("message", async message => {
 			},
 			json: true
 		};
-		var searchImageCard = {
-			uri: "https://api.scryfall.com/cards/named",
+		var searchRandCard = {
+			uri: "https://api.scryfall.com/cards/random",
 			qs: {
-				fuzzy: args.join(" ")
+				q: args.join(" ")
 			},
 			json: true
-		}
-		var searchImageSet = {
-			uri: "https://api.scryfall.com/cards/named",
-			qs: {
-				set: args[0],
-				fuzzy: args.slice(1).join(" ")
-			},
-			json: true
-		}
+		};
 		var searchSetCard = {
 			uri: "https://api.scryfall.com/cards/named",
 			qs: {
@@ -408,24 +400,25 @@ client.on("message", async message => {
 				}
 			}
 			break;
-		case"quality":
+		case "quality":
 		message.channel.send(
 				"MTGO is a quality program"
 			);
 		break;
-		case"hotel":
+		case "hotel":
 		message.channel.send(
 				"trivago"
 			);
 		break;
-		// case "help":
-		// 	message.channel.send(
-		// 		"says F whenever an F is asked for \nsays OOF whenever OOF \n!f [num] types that many F's"
-		// 		+ "\n!hotel for trivago \n!quality describes MTGO \n!c [cardName] pulls up the oracle text of a MTG card \n!cs [setAbbrevation] [cardName] pulls up the oracle text of the card in that set"
-		// 		+ "\n!p [cardName] for the price of a card \n!ps [setAbbrevation] [cardName] for the price of the card from that set \n!r [cardName] for rulings associated with that card in whitelisted channels"
-		// 		+ "\n!help for help"
-		// 	);
-		// 	break;
+		/* case "help":
+		 	message.channel.send(
+		 		"says F whenever an F is asked for \nsays OOF whenever OOF \n!f [num] types that many F's"
+		 		+ "\n!hotel for trivago \n!quality describes MTGO \n!c [cardName] pulls up the oracle text of a MTG card \n!cs [setAbbrevation] [cardName] pulls up the oracle text of the card in that set"
+		 		+ "\n!p [cardName] for the price of a card \n!ps [setAbbrevation] [cardName] for the price of the card from that set \n!r [cardName] for rulings associated with that card in whitelisted channels"
+		 		+ "\n!help for help"
+		 	);
+			 break;
+		*/
 		case "ownerhelp":
 			if (auth.owners.includes(message.author.id)){
 				message.channel.send("!whitelist whitelists a channel for the !f [num] command and the !r [cardName] command");
@@ -448,11 +441,14 @@ client.on("message", async message => {
 				sendRulings(searchCard);
 			}
 			break;
+		case "random":
+			sendCardText(searchRandCard);
+			break;
 		case "im":
-			sendCardImage(searchImageCard);
+			sendCardImage(searchCard);
 			break;
 		case "ims":
-			sendCardImage(searchImageSet);
+			sendCardImage(searchSetCard);
 			break;
 		case "adddeck":
 			addCommand(addedCommand, "decklists");
