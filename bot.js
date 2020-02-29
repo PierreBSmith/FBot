@@ -112,6 +112,11 @@ client.on("message", async message => {
 	var msg = message.content.toLocaleLowerCase();
 	if (msg.includes("can i get an f in the chat")) {
 		fs.readdir("./assets/FPics", function (err, files) {
+			if (err)
+			{
+				message.channel.send("F");
+				return;
+			}
 			let rand = Math.floor(Math.random()*(files.length));
 			message.channel.send(new Discord.Attachment('./assets/FPics/' + files[rand])).catch(console.error);
 		});
