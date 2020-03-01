@@ -2,7 +2,6 @@ const Discord = require("discord.js");
 const auth = require("./auth.json");
 const config = require("./config.json");
 const fs = require("fs");
-const request = require("request");
 const rp = require("request-promise");
 const client = new Discord.Client();
 var logger = require("winston");
@@ -38,22 +37,8 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function sprintf(template, values) {
-	return template.replace(/%s/g, function () {
-		return values.shift();
-	});
-}
-
 function titlecase(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-function ifexists(cardpart) {
-	if (cardpart == undefined) {
-		return "";
-	} else {
-		return cardpart;
-	}
 }
 
 function emojify(cost, server) {
@@ -96,7 +81,8 @@ function parseRulings(rulings) {
 	var arrayRulings = [];
 	rulings.filter(idx => idx.source !== "wotc");
 	for (let i = 0; i < rulings.length; i++) {
-		config.rulingsDate ? arrayRulings.push("```\n" + rulings[i].published_at + "\n" + rulings[i].comment + "```") : arrayRulings.push("```\n" + rulings[i].comment + "```")
+		config.rulingsDate ? 	arrayRulings.push("```\n" + rulings[i].published_at + "\n" + rulings[i].comment + "```")
+												: arrayRulings.push("```\n" + rulings[i].comment + "```")
 	}
 	if (arrayRulings.join("\n").length <= 2000) {
 		return arrayRulings.join("\n");
@@ -126,6 +112,11 @@ client.on("message", async message => {
 	var msg = message.content.toLocaleLowerCase();
 	if (msg.includes("can i get an f in the chat")) {
 		fs.readdir("./assets/FPics", function (err, files) {
+			if (err)
+			{
+				message.channel.send("F");
+				return;
+			}
 			let rand = Math.floor(Math.random()*(files.length));
 			message.channel.send(new Discord.Attachment('./assets/FPics/' + files[rand])).catch(console.error);
 		});
@@ -138,96 +129,68 @@ client.on("message", async message => {
 	if (message.content.charAt(0) !== "!") return;
 	async function sendCardImage(params) {
 		rp(params)
-			.then(async function (cd) {
+			.then(async (cd) => {
 				//console.log(cd);
-				if(ifexists(cd.card_faces) != "") {
-					var halves = "";
-					var cardhalf;
-					var halfname;
+				if(cd.card_faces) {
 					await message.channel.send("currently not implemented for double faced cards");
 				} else {
 						await message.channel.send(cd.image_uris.png).catch(console.error);
 				}
 				
 			})
-			.catch(async function (err) {
+			.catch(async (err) => {
 				console.log(err);
 			});
 	}
-	async function sendCardText(params) {
-		rp(params)
-			.then(async function (cd) {
-				if (ifexists(cd.card_faces) != "") {
-					var halves = "";
-					var cardhalf;
-					var halfname;
-					var halfcost;
-					var halftype;
-					var halftext;
-					for (var i = 0; i < 2; i++) {
-						cardhalf = cd.card_faces[i];
-						halfname = "```" + cardhalf.name + " ";
-						ifexists(cardhalf.mana_cost) != "" ?
-							(halfcost = cardhalf.mana_cost + "\n") :
-							(halfcost = "\n");
-						halftype = cardhalf.type_line + "\n";
-						halftext = cardhalf.oracle_text;
-						ifexists(cardhalf.power) != "" ?
-							(pt = "\n" + cardhalf.power + "/" + cardhalf.toughness) :
-							(pt = "");
-						halves +=
-							halfname +
-							halfcost +
-							halftype.replace("â€”", "—") +
-							halftext +
-							pt +
-							"```";
-						if (i == 0) {
-							if (ifexists(cardhalf.loyalty) != "") {
-								halves += "Loyalty: " + cardhalf.loyalty;
-							}
-							halves += "\n";
-						}
+
+  async function sendCardText(params) {
+    rp(params)
+			.then(async (cd) => {
+				let buildMessage = [];
+				let oracletext = '';
+				let pt = '';
+				let loyalty = '';
+
+				if (cd.card_faces) {
+					let otherHalfCost = '';
+					let halves = [];
+
+					if (cd.card_faces[1].mana_cost) otherHalfCost = ' // ' + emojify(cd.card_faces[1].mana_cost, message.guild);
+					buildMessage.push(cd.card_faces[0].name + ' // ' + cd.card_faces[1].name);
+					buildMessage.push(emojify(cd.card_faces[0].mana_cost, message.guild) + otherHalfCost);
+					buildMessage.push(titlecase(cd.rarity) + ' (' + cd.set.toUpperCase() + ')');
+					for (let i = 0; i < 2; i++)
+					{
+						let half = ['```\n'];
+						loyalty = '';
+
+						if (cd.card_faces[i].oracle_text) oracletext = cd.card_faces[i].oracle_text;
+						if (cd.card_faces[i].power) pt = cd.card_faces[i].power + '/' + cd.card_faces[i].toughness;
+						if (cd.card_faces[i].loyalty) loyalty = 'Loyalty: ' + cd.card_faces[i].loyalty;
+						half.push(cd.card_faces[i].name + ' ' + cd.card_faces[i].mana_cost);
+						half.push(cd.type_line);
+						half.push(oracletext);
+						half.push(pt);
+						half.push('```' + loyalty);
+						halves.push(half.join('\n'));
 					}
-					await message.channel.send(
-						sprintf("%s\n%s\n%s (%s)\n%s", [
-							cd.name,
-							ifexists(cd.card_faces[1].mana_cost != "") ?
-							emojify(cd.card_faces[0].mana_cost, message.guild) +
-							" // " +
-							emojify(cd.card_faces[1].mana_cost, message.guild) :
-							emojify(cd.card_faces[0].mana_cost, message.guild),
-							titlecase(cd.rarity),
-							cd.set.toUpperCase(),
-							halves
-						])
-					);
+					buildMessage.push(halves.join(''));
+					await message.channel.send(buildMessage.join('\n'));
 				} else {
-					await message.channel.send(
-						sprintf("%s %s\n%s (%s)\n%s\n%s%s%s", [
-							cd.name,
-							ifexists(cd.mana_cost) != "" ?
-							emojify(cd.mana_cost, message.guild) :
-							"",
-							titlecase(cd.rarity),
-							cd.set.toUpperCase(),
-							cd.type_line.replace("â€”", "—"),
-							(cd.oracle_text == "" ? "" : "```\n") +
-							cd.oracle_text.replace("â€”", "—") +
-							(cd.oracle_text == "" ? "" : "```"),
-							ifexists(cd.power) +
-							(cd.power == undefined ? "" : "/") +
-							ifexists(cd.toughness),
-							(cd.loyalty == undefined ? "" : "Loyalty: ") +
-							ifexists(cd.loyalty)
-						])
-					);
+					if (cd.oracle_text) oracletext = '```\n' + cd.oracle_text + '```';
+					if (cd.power) pt = cd.power + '/' + cd.toughness;
+					if (cd.loyalty) loyalty = 'Loyalty: ' + cd.loyalty;
+					buildMessage.push(cd.name + ' ' + emojify(cd.mana_cost, message.guild));
+					buildMessage.push(titlecase(cd.rarity) + ' (' + cd.set.toUpperCase() + ')');
+					buildMessage.push(cd.type_line);
+					buildMessage.push(oracletext + pt + loyalty);
+					await message.channel.send(buildMessage.join('\n'));
 				}
 			})
-			.catch(async function (err) {
-				console.log(err);
+			.catch(async (err) => {
+				console.log(err)
 			});
-	}
+  }
 
 	async function readCommand(command, filename) {
 		fs.readFile("./assets/" + filename + ".json", "utf8", function (err, data) {
@@ -256,7 +219,7 @@ client.on("message", async message => {
 				data = "[]"
 			}
 			let ccjson = JSON.parse(data)
-			if (ccjson === undefined || ccjson.length == 0 || ccjson.length == undefined) {
+			if (!ccjson) {
 				ccjson = [{"name": command.name,"comm": command.comm}]
 			} else {
 				for (let i = 0; i < ccjson.length; i++) {
@@ -294,43 +257,41 @@ client.on("message", async message => {
 		})
 	}
 
-	async function sendCardPrice(params) {
-		rp(params)
-			.then(async function (cd) {
-				ifexists(cd.data) ? cdset = searchExact(cd, args.join(" ")) : cdset = cd
-				if (cdset.prices.usd == undefined && cdset.prices.usd_foil == undefined) {
-					await message.channel.send(sprintf("No USD price found for %s", [
-						cdset.name
-					]));
-				} else {
-					if (cdset.prices.usd == undefined) {
-						price = cdset.prices.usd_foil + " (foil)";
-					} else {
-						price = Math.min(...[cdset.prices.usd, cdset.prices.usd_foil].filter(Boolean));
-					}
-					await message.channel.send(
-						sprintf("%s (%s) ~ $%s", [cdset.name,
-							cdset.set.toUpperCase(),
-							price.toFixed(2)
-						])
-					);
-				}
-			})
-			.catch(async function (err) {
-				console.log(err);
-			});
-	}
+  async function sendCardPrice(params) {
+    rp(params)
+        .then(async (cd) => {
+          let cdset = cd;
+          let price;
+
+          if (cd.data) cdset = searchExact(cd, args.join(' '));
+          if (!cdset.prices.usd && !cdset.prices.usd_foil) {
+            await message.channel.send(`No USD price found for ${cdset.name}`);
+          } else {
+            if (!cdset.prices.usd) {
+              price = parseFloat(cdset.prices.usd_foil).toFixed(2) + ' (foil)';
+            } else {
+              price = Math.min(...[cdset.prices.usd, cdset.prices.usd_foil]
+                          .filter(Boolean))
+                          .toFixed(2);
+            }
+            await message.channel.send(`${cdset.name} (${cdset.set.toUpperCase()}) ~ $${price}`);
+          }
+        })
+        .catch(async (err) => {
+          console.log(err);
+        });
+  }
 
 	async function sendRulings(params) {
 		rp(params)
-			.then(async function (cd) {
+			.then(async (cd) => {
 				var uriRulings = {
 					uri: cd.rulings_uri,
 					json: true
 				}
 				rp(uriRulings)
-					.then(async function (cr) {
-						if (cr.data === undefined || cr.data.length == 0) {
+					.then(async (cr) => {
+						if (!cr.data) {
 							await message.channel.send("No rulings found for " & cd.name)
 						} else {
 							var readyRulings = parseRulings(cr.data);
@@ -350,7 +311,6 @@ client.on("message", async message => {
 
 	const args = message.content.substring(1).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
-	//hey future me, if you ever want to add more command your gonna have to change this shit you dumb shit
 	if (command !== 'f') {
 		var searchCard = {
 			uri: "https://api.scryfall.com/cards/named",
@@ -473,7 +433,7 @@ client.on("message", async message => {
 					return;
 				}
 				let ccjson = JSON.parse(data)
-				if (ccjson.length !== 0) {
+				if (ccjson) {
 					for (let i = 0; i < ccjson.length; i++) {
 						decknames += ccjson[i].name;
 						if (i === ccjson.length - 1) break;
